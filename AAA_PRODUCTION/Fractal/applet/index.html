@@ -1,0 +1,489 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <!-- charset must remain utf-8 to be handled properly by Processing -->
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+    <title>Fractal : Built with Processing</title>
+
+    <style type="text/css">
+      /* <![CDATA[ */
+	
+	body {
+  	  margin: 60px 0px 0px 55px;
+	  font-family: verdana, geneva, arial, helvetica, sans-serif; 
+	  font-size: 11px; 
+	  background-color: #ddddcc; 
+	  text-decoration: none; 
+	  font-weight: normal; 
+	  line-height: normal; 
+	}
+		 
+	a          { color: #3399cc; }
+	a:link     { color: #3399cc; text-decoration: underline; }
+	a:visited  { color: #3399cc; text-decoration: underline; }
+	a:active   { color: #3399cc; text-decoration: underline; }
+	a:hover    { color: #3399cc; text-decoration: underline; }
+
+      /* ]]> */
+    </style>    
+  </head>
+
+  <body>
+    <div id="content">
+      <div id="Fractal_container">
+
+	<!-- This version plays nicer with older browsers, 
+	     but requires JavaScript to be enabled. 
+	     http://java.sun.com/javase/6/docs/technotes/guides/jweb/deployment_advice.html
+	     http://download.oracle.com/javase/tutorial/deployment/deploymentInDepth/ -->
+	<script type="text/javascript"
+		src="http://www.java.com/js/deployJava.js"></script>
+	<script type="text/javascript">
+	  /* <![CDATA[ */
+
+	  var attributes = { 
+            code: 'Fractal.class',
+            archive: 'Fractal.jar,RXTXcomm.jar,serial.jar,jl1.0.jar,jsminim.jar,minim-spi.jar,minim.jar,mp3spi1.9.4.jar,tritonus_aos.jar,tritonus_share.jar,core.jar',
+            width: 800, 
+            height: 600,
+          };
+          var parameters = { 
+            image: 'loading.gif',
+            centerimage: 'true',
+          };
+          var version = '1.5';
+          deployJava.runApplet(attributes, parameters, version);
+
+          /* ]]> */
+        </script>
+        
+	<noscript> <div>
+	  <!--[if !IE]> -->
+	  <object classid="java:Fractal.class" 
+            	  type="application/x-java-applet"
+            	  archive="Fractal.jar,RXTXcomm.jar,serial.jar,jl1.0.jar,jsminim.jar,minim-spi.jar,minim.jar,mp3spi1.9.4.jar,tritonus_aos.jar,tritonus_share.jar,core.jar"
+            	  width="800" height="600"
+            	  standby="Loading Processing software..." >
+            
+	    <param name="archive" value="Fractal.jar,RXTXcomm.jar,serial.jar,jl1.0.jar,jsminim.jar,minim-spi.jar,minim.jar,mp3spi1.9.4.jar,tritonus_aos.jar,tritonus_share.jar,core.jar" />
+	    
+	    <param name="mayscript" value="true" />
+	    <param name="scriptable" value="true" />
+	    
+	    <param name="image" value="loading.gif" />
+	    <param name="boxmessage" value="Loading Processing software..." />
+	    <param name="boxbgcolor" value="#FFFFFF" />
+	  <!--<![endif]-->
+
+	    <!-- For more instructions on deployment, 
+		 or to update the CAB file listed here, see:
+		 http://java.sun.com/javase/6/webnotes/family-clsid.html
+		 http://java.sun.com/javase/6/webnotes/install/jre/autodownload.html -->
+	    <object classid="clsid:8AD9C840-044E-11D1-B3E9-00805F499D93"
+		    codebase="http://java.sun.com/update/1.6.0/jinstall-6u20-windows-i586.cab"
+		    width="800" height="600"
+		    standby="Loading Processing software..."  >
+	      
+	      <param name="code" value="Fractal" />
+	      <param name="archive" value="Fractal.jar,RXTXcomm.jar,serial.jar,jl1.0.jar,jsminim.jar,minim-spi.jar,minim.jar,mp3spi1.9.4.jar,tritonus_aos.jar,tritonus_share.jar,core.jar" />
+	      
+	      <param name="mayscript" value="true" />
+	      <param name="scriptable" value="true" />
+	      
+	      <param name="image" value="loading.gif" />
+	      <param name="boxmessage" value="Loading Processing software..." />
+	      <param name="boxbgcolor" value="#FFFFFF" />
+	      
+	      <p>
+		<strong>
+		  This browser does not have a Java Plug-in.
+		  <br />
+		  <a href="http://www.java.com/getjava" title="Download Java Plug-in">
+		    Get the latest Java Plug-in here.
+		  </a>
+		</strong>
+	      </p>
+	      
+	    </object>
+	    
+	  <!--[if !IE]> -->
+	  </object>
+	  <!--<![endif]-->
+
+	</div> </noscript>
+
+      </div>
+      
+      <p>
+	----END VARIABLES----**\\
+
+
+//*************SET UP THE SKETCH*********\\
+void setup(){
+   size(800, 600);//set the size to 1100 px wide and 768 high
+   
+  
+  //**SECTION HEAD------SERIAL EVENT-----**//
+//**This section created a serial event. The serial port reads the rssi strength up to the
+//size of of the window array "readings". This will then be averaged later as the
+//functional RSSI(the control value for all dynamics in the project)
+  //println(Serial.list());
+  String arduinoPort = Serial.list()[0];
+  port = new Serial(this, arduinoPort, 9600);
+  for (int thisReading = 0; thisReading < window_size; thisReading++)
+    readings[thisReading]=0;
+
+//**SECTION FOOTER-----SERIAL EVENT**//
+
+//**MAIN HEADER-------------AUDIO------------**\\
+  //**SECTION HEADER----AUDIO SYNTH-----**\\
+   //**This section creates a sine wave audio synthesizer from the Minim Library**//
+  minim = new Minim(this);
+  // get a line out from Minim, default bufferSize is 1024, default sample rate is 44100, bit depth is 16
+  out = minim.getLineOut(Minim.STEREO);
+  // create a sine wave Oscillator, set to 440 Hz, at 0.5 amplitude(volume, sample rate from line out
+  sineG = new SineWave(196.00, off, out.sampleRate());//1st sine wave - frequency between G and an A
+  sineC = new SineWave(130.81, off, out.sampleRate());//2nd sine wave - frequency between C and D
+  sineF = new SineWave(174.61, off, out.sampleRate());//3rd sine wave - frequency ~F
+  sineB = new SineWave(20.60, off, out.sampleRate()); 
+ //sineB = new SineWave(120.21, off, out.sampleRate());low option 4th sine wave - low b flat
+  //sineB = new SineWave(00.01, off, out.sampleRate());//low option 4th sine wave - low b flat
+  // set the portamento speed on the oscillator to 200 milliseconds
+  sineG.portamento(200);
+  sineC.portamento(200);
+  sineF.portamento(200);
+  sineB.portamento(50);
+ // add the oscillator to the line out
+  out.addSignal(sineG);
+  out.addSignal(sineC);  
+  out.addSignal(sineF);  
+  out.addSignal(sineB);
+  //**SECTION FOOTER----AUDIO SYNTH-----**//
+  
+//MAIN FOOTER ------------AUDIO-----------**\\
+}
+//***********END SKETCH SETUP**********\\
+
+
+
+//*******BEGIN MAIN LOOP*********\\
+void serialEvent (Serial myPort) {
+  // get the signal strength between the dancers' xbee modules through the serial port:
+  rssi= myPort.read();
+}
+
+void draw(){
+ println(vol);
+  println(onCount); 
+ 
+ 
+ smooth();//turn on antialiasing
+ //**SECTION HEADER ---- PROCESS THE RSSI **\\    
+  total = total - readings[index];
+  readings[index] = rssi;
+  total = total + readings[index];
+  index = index + 1;
+  
+   if (index == window_size)
+    index = 0;
+
+    average = (total / window_size);
+    
+  average= map(average, low_rssi, high_rssi, 1, width);  //1 is min screen width
+  
+  if (average<=0)
+    average=0; 
+//**SECTION FOOTER ----PROCESS THE RSSI***\\
+
+ 
+  
+//*MAIN HEADER -----------AUDIO---------------******\\  
+              
+   //**SECTION HEAD------SYNTH VOLUME CONTROLLER------**//
+ //**The following code increments the volume while the performers are very close
+ //and decrements it if they are away from each other**//
+ //**Use the closeCount to control which notes are played
+  
+   if (rssi>=58){
+     if (farCount==4)farCount=closeCount;
+     else if (closeCount>farCount)farCount+=1;
+   }
+                                       
+   if (rssi<=36 && closeCount==farCount){
+          closeCount+=1;
+   }
+
+                                       
+  if (closeCount==5)closeCount=1;
+  if (farCount==5)farCount=1;
+  if (closeCount==1){
+if(average<=36){  //if rssi is at its lowest value 
+              //(performers are as close as they can get to oneanother
+            //increse the closenessCount  
+              //run this code:
+       offCount=0;//set the "Off" Counter to Zero
+      if(vol>=volMax){    //if the volume is maxxed out
+                onCount = 0; //set the On counter to 0
+                //continue;  //and continue with the show
+                     }
+       else{              //else
+                onCount+=1;//increment the "On" Counter
+                      if(onCount>=onThreshold){  //if the "On" Counter reaches the "On" Threshold
+                               vol+=onIncrement; //increase the volume
+                               onCount = 0;        //set the "On" Counter to 0
+                                              }
+                                                            }
+          sineG.setAmp(vol);//set the amplitude of the sine wave synth to the new volume
+          sineC.setAmp(off);
+          sineF.setAmp(off);
+          sineB.setAmp(off);
+        }
+else{           
+   onCount=0; //set the "On" Counter to zero 
+   
+  if(vol<=volMin){//if the volume is minned out
+        offCount = 0;   } 
+  else{    //
+          offCount+=1;//increment the "Off" Counter
+                 if(offCount>=offThreshold){ //if the "Off" Counter reaches the "Off" Threshold
+                            vol-=offIncrement; //decrease the volume\
+                             offCount = 0;       //and set the "Off" Counter to 0
+                                            }
+                 else{                         //if the "Off" Counter hasn't reached the 
+                                               //decrement threshold yet
+                     // continue;                //continue with the show
+                 }                      
+   }
+   sineG.setAmp(vol);//set the amplitude of the sine wave synth to the new volume
+   sineC.setAmp(off);
+   sineF.setAmp(off);
+   sineB.setAmp(off);
+ }   }
+else if (closeCount ==2){
+if(average<=36){  //if rssi is at its lowest value 
+              //(performers are as close as they can get to oneanother
+            //increse the closenessCount  
+              //run this code:
+       offCount=0;//set the "Off" Counter to Zero
+      if(vol>=volMax){    //if the volume is maxxed out
+                onCount = 0; //set the On counter to 0
+                //continue;  //and continue with the show
+                     }
+       else{              //else
+                onCount+=1;//increment the "On" Counter
+                      if(onCount>=onThreshold){  //if the "On" Counter reaches the "On" Threshold
+                               vol+=onIncrement; //increase the volume
+                               onCount = 0;        //set the "On" Counter to 0
+                                              }
+                                                            }
+          sineG.setAmp(vol);//set the amplitude of the sine wave synth to the new volume
+          sineC.setAmp(vol);
+          sineF.setAmp(off);
+          sineB.setAmp(off);
+        }
+else{           
+   onCount=0; //set the "On" Counter to zero 
+   
+  if(vol<=volMin){//if the volume is minned out
+        offCount = 0;   } 
+  else{    //
+          offCount+=1;//increment the "Off" Counter
+                 if(offCount>=offThreshold){ //if the "Off" Counter reaches the "Off" Threshold
+                            vol-=offIncrement; //decrease the volume\
+                             offCount = 0;       //and set the "Off" Counter to 0
+                                            }
+                 else{                         //if the "Off" Counter hasn't reached the 
+                                               //decrement threshold yet
+                     // continue;                //continue with the show
+                 }                      
+   }
+   sineG.setAmp(vol);//set the amplitude of the sine wave synth to the new volume
+   sineC.setAmp(vol);
+   sineF.setAmp(off);
+   sineB.setAmp(off);
+ }   }
+ 
+ else if(closeCount ==3){
+if(average<=36){  //if rssi is at its lowest value 
+              //(performers are as close as they can get to oneanother
+            //increse the closenessCount  
+              //run this code:
+       offCount=0;//set the "Off" Counter to Zero
+      if(vol>=volMax){    //if the volume is maxxed out
+                onCount = 0; //set the On counter to 0
+                //continue;  //and continue with the show
+                     }
+       else{              //else
+                onCount+=1;//increment the "On" Counter
+                      if(onCount>=onThreshold){  //if the "On" Counter reaches the "On" Threshold
+                               vol+=onIncrement; //increase the volume
+                               onCount = 0;        //set the "On" Counter to 0
+                                              }
+                                                            }
+          sineG.setAmp(vol);//set the amplitude of the sine wave synth to the new volume
+          sineC.setAmp(vol);
+          sineF.setAmp(vol);
+          sineB.setAmp(off);
+      }
+else{         //else, if the rssi is not at its l
+              //(the performers are away from each other)
+              //run this code:              
+   onCount=0; //set the "On" Counter to zero 
+   
+  if(vol<=volMin){//if the volume is minned out
+        offCount = 0;//set the "Off" counter to 0
+       // continue;  //and continue with the show
+   } 
+  else{    //
+          offCount+=1;//increment the "Off" Counter
+                 if(offCount>=offThreshold){ //if the "Off" Counter reaches the "Off" Threshold
+                            vol-=offIncrement; //decrease the volume\
+                             offCount = 0;       //and set the "Off" Counter to 0
+                                            }
+                 else{                         //if the "Off" Counter hasn't reached the 
+                                               //decrement threshold yet
+                     // continue;                //continue with the show
+                 }                      
+   }
+   sineG.setAmp(vol);//set the amplitude of the sine wave synth to the new volume
+   sineC.setAmp(vol);
+   sineF.setAmp(vol);
+   sineB.setAmp(off);
+ }   }
+ 
+ else if(closeCount ==4){
+if(average<=36){
+       offCount=0;//set the "Off" Counter to Zero
+      if(vol>=volMax){    //if the volume is maxxed out
+                onCount = 0; //set the On counter to 0
+                     }
+       else{
+                onCount+=1;//increment the "On" Counter
+                      if(onCount>=onThreshold){  //if the "On" Counter reaches the "On" Threshold
+                               vol+=onIncrement; //increase the volume
+                               onCount = 0;        //set the "On" Counter to 0
+                                              }}
+          sineG.setAmp(vol);//set the amplitude of the sine wave synth to the new volume
+          sineC.setAmp(vol);
+          sineF.setAmp(vol);
+          sineB.setAmp(vol);  
+      }
+else{               
+   onCount=0;
+  if(vol<=volMin){//if the volume is minned out
+        offCount = 0;//set the "Off" counter to 0
+   } 
+  else{
+          offCount+=1;//increment the "Off" Counter
+                 if(offCount>=offThreshold){ //if the "Off" Counter reaches the "Off" Threshold
+                            vol-=offIncrement; //decrease the volume\
+                             offCount = 0;       //and set the "Off" Counter to 0
+                                            }
+                 else{                         //if the "Off" Counter hasn't reached the 
+                                               //decrement threshold yet
+                     // continue;                //continue with the show
+                 }                      
+   }
+   sineG.setAmp(vol);//set the amplitude of the sine wave synth to the new volume
+   sineC.setAmp(vol);
+   sineF.setAmp(vol);
+   sineB.setAmp(vol);
+ }   }
+ 
+ println("close count = " + closeCount);//,indent,80);
+  println("far count = " + farCount);//,indent,120); 
+  
+    //**SECTION FOOTER----AUDIO SYNTH VOLUME CONTROLLER-----**//
+
+
+//**MAIN FOOTER------------AUDIO----------------***\\
+
+
+
+//**MAIN HEADER -----------GRAPHICS--------------**\\
+  //**The following code controls the projected graphics**\\
+  
+  background(0);
+  frameRate(30);
+
+  //**SECTION HEAD ----HIGH CONTRAST COLOR RANDOMIZER-----**\\
+ //**This section randomizes color when the performers are very far away. The rgb values of the projected fractal and 
+//background randomize after reaching a high rssi number. 
+  if (rssi>=70) { //if rssi value is > or = to 70, 
+    r=random(0, 255); //randomize red
+    while (r>low && r<high)//if color is not high enough contrast
+    {
+      r=random(0, 255);//randomize again
+    }
+//println (r);//print the red value
+
+    g=random(0, 255);//randomize green
+    while (g>low && g<high)//if color is not high contrast
+    {
+      g=random(0, 255);//randomize again
+    }
+    //println (g);//print the green value    
+
+    b=random(0, 255);//randomize blue
+    while (b>low && b<high)//if the color is not high contrast
+    {
+      b=random(0, 255);//randomize again
+    }
+    //println (b);//print the blue value
+  }
+  //**SECTION FOOTER ----HIGH CONTRAST COLOR RANDOMIZER-----**\\
+  //**SECTION HEADER ---TREE FRACTAL-----**\\
+//The following code controls the drawing of the projected tree fractal and background 
+  // Let's pick an angle 0 to 90 degrees based on the value of the rssi
+     //**SUB SECTION HEADER---COLOR OF BACKGROUND AND FRACTAL---**\\
+  background(255-r, 255-g, 255-b); //set background to the inverse of the 
+                                  //randomized r,g,b values. This makes the color of the
+                                  //background always the complement to the color of the
+                                  //fractal
+  stroke(r, g, b); //set the line color to the randomized r,g,b colors
+     //**SUB SECTION FOOTER ---COLOR OF BACKGROUND AND FRACTAL----**\\
+  
+     //**SUB SECTION HEADER ---BRANCHING ANGLE CONTROL---**\\
+     //Here, we relate the rssi to the branching angle:
+     //the closer the dancers are, the smaller the branching angle.
+  if (rssi<=36) { //if the rssi is at its minimum (dancers are close)
+         a=0;    //the branching angle is Zero (this results in a projected vertical line)
+               }
+               
+  else {         //if the rssi is not at minimum
+        a =  ((average)/width) * 135f;//the branching angle = the rssi average/width *135f 
+       }                              //I don't remember what f is? 
+       
+  theta = radians(a);//convert angle to radians
+      //** SUB SECTION FOOTER ---BRANCHING ANGLE CONTROL---**\\
+      
+      //** SUB SECTION HEADER ---DRAW THE FRACTAL---**\\
+  translate(windowWidth/2, windowHeight);// Draw a line 120 pixels
+  strokeWeight(20); //set the stroke weight to 20
+  line(0, 0, 0, -100);//draw the first line
+  // Move to the end of that line
+  translate(0, -100);
+  // Start the recursive branching
+  branch(300);
+  stroke(255);
+  int h=2*height/3;
+     //**SUB SECTION FOOTER ---DRAW THE FRACTAL---**\\
+     
+     delay(0);//Delay the loop
+//**MAIN FOOTER --------------GRAPHICS-------------**\\     
+}
+//******END OF MAIN LOOP********
+
+      </p>
+      
+      <p>
+	Source code: <a href="Fractal.pde">Fractal</a> 
+      </p>
+      
+      <p>
+	Built with <a href="http://processing.org" title="Processing.org">Processing</a>
+      </p>
+    </div>
+  </body>
+</html>
